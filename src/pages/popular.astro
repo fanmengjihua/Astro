@@ -1,0 +1,23 @@
+---
+import Posts from "@/layouts/components/Posts.astro";
+import Base from "@/layouts/Base.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
+
+// 获取所有文章
+const posts = await getSinglePage("posts");
+
+// 按点击量排序
+const sortedByViews = [...posts].sort((a, b) => (b.data.views || 0) - (a.data.views || 0));
+
+const title = "热门排行";
+---
+
+<Base title={title || "Popular"}>
+  <div class="section">
+    <div class="container">
+      <p class="text-center text-2xl mb-4"></p>
+      <h1 class="h2 mb-16 text-center text-primary">{title}</h1>
+      <Posts posts={sortedByViews} fluid={false} />
+    </div>
+  </div>
+</Base>

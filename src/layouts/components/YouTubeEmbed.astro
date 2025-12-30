@@ -1,0 +1,39 @@
+---
+const { id, url, width = 560, height = 315, allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture", title = "YouTube video", class: className = "" } = Astro.props;
+
+let videoId = id ?? null;
+if (!videoId && url) {
+  const s = String(url).trim();
+  try {
+    const u = new URL(s);
+    if (u.hostname.includes("youtube.com") && u.searchParams.has("v")) videoId = u.searchParams.get("v");
+    else if (u.hostname.includes("youtu.be")) videoId = u.pathname.slice(1);
+    else {
+      const m = u.pathname.match(/embed\/([A-Za-z0-9_-]{11})/);
+      if (m) videoId = m[1];
+    }
+  } catch (e) {
+    const m = s.match(/(?:v=|youtu\.be\/|embed\/)?([A-Za-z0-9_-]{11})/);
+    if (m) videoId = m[1];
+  }
+}
+
+const src = videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+---
+{src ? (
+  <div class={`youtube-embed ${className}`} style="position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;">
+    <iframe
+      src={src}
+      title={title}
+      width={width}
+      height={height}
+      loading="lazy"
+      frameborder="0"
+      allow={allow}
+      allowfullscreen
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;display:block;"
+    />
+  </div>
+) : (
+  <a href={url} target="_blank" rel="noopener noreferrer">{url || "YouTube"}</a>
+)}

@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理后台 - 呷味道-JiaWeiDao</title>
+    <link rel="icon" type="image/png" href="/images/jiaweidao.png" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+      }
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-size: 16px;
+        color: #666;
+        border-bottom: 2px solid transparent;
+      }
+      .tab.active {
+        color: #007bff;
+        border-bottom-color: #007bff;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+      }
+      input, textarea, select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      textarea {
+        height: 200px;
+        resize: vertical;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+      }
+      .alert.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .alert.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .login-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 40px;
+      }
+      .auth-links {
+        margin-top: 15px;
+        text-align: center;
+      }
+      .auth-links a {
+        color: #007bff;
+        text-decoration: none;
+        margin: 0 10px;
+      }
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+      .logout-btn {
+        background-color: #dc3545;
+        float: right;
+      }
+      .logout-btn:hover {
+        background-color: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 登录页面 -->
+    <div id="login-page" class="container login-container">
+      <h1>管理员登录</h1>
+      <div id="login-alert"></div>
+      <div class="form-group">
+        <label for="login-email">邮箱</label>
+        <input type="email" id="login-email" placeholder="輸入Gmail郵箱">
+      </div>
+      <div class="form-group">
+        <label for="login-password">密碼</label>
+        <input type="password" id="login-password" placeholder="輸入密碼">
+      </div>
+      <button onclick="window.login()">登入</button>
+        <div class="auth-links">
+          <a href="javascript:void(0)" onclick="window.showRegisterPage()">註冊帳號</a>
+          <a href="javascript:void(0)" onclick="window.showResetPasswordPage()">忘記密碼</a>
+        </div>
+    </div>
+
+    <!-- 註冊頁面 -->
+    <div id="register-page" class="container login-container" style="display: none;">
+      <h1>註冊管理員帳號</h1>
+      <div id="register-alert"></div>
+      <div class="form-group">
+        <label for="register-email">Gmail郵箱</label>
+        <input type="email" id="register-email" placeholder="輸入Gmail郵箱">
+      </div>
+      <div class="form-group">
+        <label for="register-password">密碼</label>
+        <input type="password" id="register-password" placeholder="輸入至少6位密碼">
+      </div>
+      <button onclick="window.register()">註冊</button>
+      <div class="auth-links">
+        <a href="javascript:void(0)" onclick="window.showLoginPage()">返回登入</a>
+        </div>
+    </div>
+
+    <!-- 密碼重置頁面 -->
+    <div id="reset-password-page" class="container login-container" style="display: none;">
+      <h1>重置密碼</h1>
+      <div id="reset-alert"></div>
+      <div class="form-group">
+        <label for="reset-email">郵箱</label>
+        <input type="email" id="reset-email" placeholder="輸入Gmail郵箱">
+      </div>
+      <div class="form-group">
+        <label for="reset-current-password">當前密碼</label>
+        <input type="password" id="reset-current-password" placeholder="輸入當前密碼">
+      </div>
+      <div class="form-group">
+        <label for="reset-new-password">新密碼</label>
+        <input type="password" id="reset-new-password" placeholder="輸入至少6位新密碼">
+      </div>
+      <button onclick="window.resetPassword()">重置密碼</button>
+      <div class="auth-links">
+        <a href="javascript:void(0)" onclick="window.showLoginPage()">返回登入</a>
+        </div>
+    </div>
+
+    <!-- 管理后台主页面 -->
+    <div id="admin-panel" class="container" style="display: none;">
+      <h1>內容管理系統</h1>
+      <button class="logout-btn" onclick="window.logout()">退出登入</button>
+      
+      <div class="tabs">
+        <button class="tab active" onclick="window.openTab(event, 'posts')">文章管理</button>
+        <button class="tab" onclick="window.openTab(event, 'authors')">作者管理</button>
+      </div>
+      
+      <!-- 文章管理標籤頁 -->
+      <div id="posts" class="tab-content active">
+        <h2>文章管理</h2>
+        <div id="posts-alert"></div>
+        <div class="form-group">
+          <label for="post-title">標題</label>
+          <input type="text" id="post-title" placeholder="輸入文章標題">
+        </div>
+        <div class="form-group">
+          <label for="post-meta-title">SEO 標題（可選）</label>
+          <input type="text" id="post-meta-title" placeholder="輸入SEO標題">
+        </div>
+        <div class="form-group">
+          <label for="post-description">SEO 描述</label>
+          <textarea id="post-description" placeholder="輸入SEO描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="post-date">發布日期</label>
+          <input type="datetime-local" id="post-date" value="">
+        </div>
+        <div class="form-group">
+          <label for="post-youtube">YouTube 影片 ID</label>
+          <input type="text" id="post-youtube" placeholder="輸入YouTube影片ID">
+        </div>
+        <div class="form-group">
+          <label for="post-image">封面圖（上傳本地圖片）</label>
+          <input type="file" id="post-image" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label for="post-image-url">封面圖 URL（圖床圖片）</label>
+          <input type="text" id="post-image-url" placeholder="輸入圖床圖片 URL，例如：https://example.com/image.jpg">
+        </div>
+        <div class="form-group">
+          <label for="post-categories">分類</label>
+          <select id="post-categories">
+            <option value="">請選擇分類</option>
+            <option value="靈魂醬料">靈魂醬料</option>
+            <option value="經典餅類">經典餅類</option>
+            <option value="炸烤滷味">炸烤滷味</option>
+            <option value="飽肚主食">飽肚主食</option>
+            <option value="甜點冰品">甜點冰品</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="post-authors">作者（可多選，用逗號分隔）</label>
+          <input type="text" id="post-authors" placeholder="例如：張三,李四" value="JiaWeiDao">
+        </div>
+        <div class="form-group">
+          <label for="post-draft">是否草稿</label>
+          <input type="checkbox" id="post-draft">
+        </div>
+        <div class="form-group">
+          <label for="post-views">閱讀量</label>
+          <input type="number" id="post-views" placeholder="輸入閱讀量" value="0">
+        </div>
+        <div class="form-group">
+          <label for="post-quote">引用正文</label>
+          <textarea id="post-quote" placeholder="輸入引用正文內容"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="post-content">正文</label>
+          <textarea id="post-content" placeholder="輸入文章正文內容"></textarea>
+        </div>
+        <button onclick="window.savePost()">儲存文章</button>
+      </div>
+      
+      <!-- 作者管理標籤頁 -->
+      <div id="authors" class="tab-content">
+        <h2>作者管理</h2>
+        <div id="authors-alert"></div>
+        <div class="form-group">
+          <label for="author-name">姓名</label>
+          <input type="text" id="author-name" placeholder="輸入作者姓名">
+        </div>
+        <div class="form-group">
+          <label for="author-bio">簡介</label>
+          <textarea id="author-bio" placeholder="輸入作者簡介"></textarea>
+        </div>
+        <button onclick="window.saveAuthor()">儲存作者</button>
+      </div>
+    </div>
+    
+    <script>
+      // 页面加载时检查认证状态
+      document.addEventListener('DOMContentLoaded', function() {
+        // 设置当前时间为发布日期
+        var now = new Date();
+        var formattedDate = now.toISOString().slice(0, 16);
+        const postDateElement = document.getElementById('post-date') as HTMLInputElement;
+        if (postDateElement) {
+          postDateElement.value = formattedDate;
+        }
+        
+        // 检查是否已经登录
+        checkAuthStatus();
+      });
+      
+      // 检查认证状态
+      function checkAuthStatus() {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          // 验证token是否有效（简单实现）
+          (window as any).showAdminPanel();
+        } else {
+          (window as any).showLoginPage();
+        }
+      }
+      
+      // 显示登录页面
+      window.showLoginPage = function() {
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const resetPasswordPage = document.getElementById('reset-password-page');
+        const adminPanel = document.getElementById('admin-panel');
+        
+        if (loginPage) loginPage.style.display = 'block';
+        if (registerPage) registerPage.style.display = 'none';
+        if (resetPasswordPage) resetPasswordPage.style.display = 'none';
+        if (adminPanel) adminPanel.style.display = 'none';
+      }
+      
+      // 显示注册页面
+      window.showRegisterPage = function() {
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const resetPasswordPage = document.getElementById('reset-password-page');
+        const adminPanel = document.getElementById('admin-panel');
+        
+        if (loginPage) loginPage.style.display = 'none';
+        if (registerPage) registerPage.style.display = 'block';
+        if (resetPasswordPage) resetPasswordPage.style.display = 'none';
+        if (adminPanel) adminPanel.style.display = 'none';
+      }
+      
+      // 显示密码重置页面
+      window.showResetPasswordPage = function() {
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const resetPasswordPage = document.getElementById('reset-password-page');
+        const adminPanel = document.getElementById('admin-panel');
+        
+        if (loginPage) loginPage.style.display = 'none';
+        if (registerPage) registerPage.style.display = 'none';
+        if (resetPasswordPage) resetPasswordPage.style.display = 'block';
+        if (adminPanel) adminPanel.style.display = 'none';
+      }
+      
+      // 显示管理面板
+      window.showAdminPanel = function() {
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const resetPasswordPage = document.getElementById('reset-password-page');
+        const adminPanel = document.getElementById('admin-panel');
+        
+        if (loginPage) loginPage.style.display = 'none';
+        if (registerPage) registerPage.style.display = 'none';
+        if (resetPasswordPage) resetPasswordPage.style.display = 'none';
+        if (adminPanel) adminPanel.style.display = 'block';
+      }
+      
+      // 标签页切换功能
+      window.openTab = function(evt: any, tabName: string) {
+        var i, tabContent, tabLinks;
+        tabContent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabContent.length; i++) {
+          const tab = tabContent[i] as HTMLElement;
+          if (tab) tab.style.display = "none";
+        }
+        tabLinks = document.getElementsByClassName("tab");
+        for (i = 0; i < tabLinks.length; i++) {
+          const tabLink = tabLinks[i] as HTMLElement;
+          if (tabLink) tabLink.className = tabLink.className.replace(" active", "");
+        }
+        const tabElement = document.getElementById(tabName);
+        if (tabElement) tabElement.style.display = "block";
+        if (evt && evt.currentTarget) {
+          const currentTarget = evt.currentTarget as HTMLElement;
+          currentTarget.className += " active";
+        }
+      }
+      
+      // 显示消息提示
+      function showAlert(containerId: string, message: string, type: string) {
+        const alertDiv = document.getElementById(containerId);
+        if (alertDiv) {
+          alertDiv.innerHTML = '<div class="alert ' + type + '">' + message + '</div>';
+          setTimeout(function() {
+            const div = document.getElementById(containerId);
+            if (div) div.innerHTML = '';
+          }, 3000);
+        }
+      }
+
+
+      
+      // 登入功能
+      window.login = async function() {
+        const emailElement = document.getElementById('login-email') as HTMLInputElement;
+        const passwordElement = document.getElementById('login-password') as HTMLInputElement;
+        
+        if (!emailElement || !passwordElement) {
+          showAlert('login-alert', '請輸入郵箱和密碼', 'error');
+          return;
+        }
+        
+        const email = emailElement.value;
+        const password = passwordElement.value;
+        
+        if (!email || !password) {
+          showAlert('login-alert', '請輸入郵箱和密碼', 'error');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            // 儲存token到本地儲存
+            localStorage.setItem('authToken', result.token);
+            localStorage.setItem('userEmail', result.email);
+            window.showAdminPanel();
+          } else {
+            showAlert('login-alert', result.error, 'error');
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+          showAlert('login-alert', '登入失敗: ' + errorMessage, 'error');
+        }
+      }
+      
+      // 註冊功能
+      window.register = async function() {
+        const emailElement = document.getElementById('register-email') as HTMLInputElement;
+        const passwordElement = document.getElementById('register-password') as HTMLInputElement;
+        
+        if (!emailElement || !passwordElement) {
+          showAlert('register-alert', '請輸入郵箱和密碼', 'error');
+          return;
+        }
+        
+        const email = emailElement.value;
+        const password = passwordElement.value;
+        
+        if (!email || !password) {
+          showAlert('register-alert', '請輸入郵箱和密碼', 'error');
+          return;
+        }
+        
+        if (!email.endsWith('@gmail.com')) {
+          showAlert('register-alert', '只能使用Gmail郵箱註冊', 'error');
+          return;
+        }
+        
+        if (password.length < 6) {
+          showAlert('register-alert', '密碼長度不能少於6位', 'error');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            showAlert('register-alert', '註冊成功，請登入', 'success');
+            // 跳轉到登入頁面
+            setTimeout(() => {
+              window.showLoginPage();
+            }, 2000);
+          } else {
+            showAlert('register-alert', result.error, 'error');
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+          showAlert('register-alert', '註冊失敗: ' + errorMessage, 'error');
+        }
+      }
+      
+      // 密碼重置功能
+      window.resetPassword = async function() {
+        const emailElement = document.getElementById('reset-email') as HTMLInputElement;
+        const currentPasswordElement = document.getElementById('reset-current-password') as HTMLInputElement;
+        const newPasswordElement = document.getElementById('reset-new-password') as HTMLInputElement;
+        
+        if (!emailElement || !currentPasswordElement || !newPasswordElement) {
+          showAlert('reset-alert', '請填寫所有欄位', 'error');
+          return;
+        }
+        
+        const email = emailElement.value;
+        const currentPassword = currentPasswordElement.value;
+        const newPassword = newPasswordElement.value;
+        
+        if (!email || !currentPassword || !newPassword) {
+          showAlert('reset-alert', '請填寫所有欄位', 'error');
+          return;
+        }
+        
+        if (newPassword.length < 6) {
+          showAlert('reset-alert', '新密碼長度不能少於6位', 'error');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/resetPassword', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, currentPassword, newPassword })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            showAlert('reset-alert', '密碼重置成功，請重新登入', 'success');
+            // 跳轉到登入頁面
+            setTimeout(() => {
+              window.showLoginPage();
+            }, 2000);
+          } else {
+            showAlert('reset-alert', result.error, 'error');
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+          showAlert('reset-alert', '密碼重置失敗: ' + errorMessage, 'error');
+        }
+      }
+      
+      // 退出登入
+      window.logout = function() {
+        // 清除本地儲存的token
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userEmail');
+        // 跳轉到登入頁面
+        window.showLoginPage();
+      }
+      
+      // 儲存文章
+      window.savePost = async function() {
+        // 確保所有元素都存在
+        const postTitle = document.getElementById('post-title') as HTMLInputElement;
+        const postMetaTitle = document.getElementById('post-meta-title') as HTMLInputElement;
+        const postDescription = document.getElementById('post-description') as HTMLInputElement;
+        const postDate = document.getElementById('post-date') as HTMLInputElement;
+        const postYoutube = document.getElementById('post-youtube') as HTMLInputElement;
+        const postImage = document.getElementById('post-image') as HTMLInputElement;
+        const postImageUrl = document.getElementById('post-image-url') as HTMLInputElement;
+        const postCategories = document.getElementById('post-categories') as HTMLInputElement;
+        const postAuthors = document.getElementById('post-authors') as HTMLInputElement;
+        const postDraft = document.getElementById('post-draft') as HTMLInputElement;
+        const postViews = document.getElementById('post-views') as HTMLInputElement;
+        const postContent = document.getElementById('post-content') as HTMLTextAreaElement;
+        const postQuote = document.getElementById('post-quote') as HTMLInputElement;
+        
+        // 檢查所有必要元素是否存在
+        if (!postTitle || !postMetaTitle || !postDescription || !postDate || !postYoutube || 
+            !postImage || !postImageUrl || !postCategories || !postAuthors || !postDraft || !postViews || 
+            !postContent || !postQuote) {
+          showAlert('posts-alert', '表單元素載入失敗，請重新整理頁面重試', 'error');
+          return;
+        }
+        
+        // 獲取元素值
+        const title = postTitle.value;
+        const metaTitle = postMetaTitle.value;
+        const description = postDescription.value;
+        const date = postDate.value;
+        const youtube = postYoutube.value;
+        const imageFile = postImage.files?.[0];
+        const imageUrl = postImageUrl.value.trim();
+        const category = postCategories.value;
+        const authors = postAuthors.value;
+        const draft = postDraft.checked;
+        let views = postViews.value;
+        const content = postContent.value;
+        const quote = postQuote.value;
+        
+        if (!title) {
+          showAlert('posts-alert', '請輸入文章標題', 'error');
+          return;
+        }
+        
+        if (!category) {
+          showAlert('posts-alert', '請選擇分類', 'error');
+          return;
+        }
+        
+        // 設定預設閱讀量為0
+        if (!views) {
+          views = '0';
+        }
+        
+        // 處理封面圖（優先使用圖床 URL，沒有則上傳本地圖片）
+        let imagePath = '';
+        if (imageUrl) {
+          // 使用圖床圖片 URL
+          imagePath = imageUrl;
+        } else if (imageFile) {
+          // 上傳本地圖片到伺服器
+          const formData = new FormData();
+          formData.append('image', imageFile);
+          
+          try {
+            const response = await fetch('/api/uploadImage', {
+              method: 'POST',
+              body: formData
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+              imagePath = result.fileUrl;
+            } else {
+              showAlert('posts-alert', '圖片上傳失敗: ' + result.error, 'error');
+              return;
+            }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+            showAlert('posts-alert', '圖片上傳失敗: ' + errorMessage, 'error');
+            return;
+          }
+        }
+        
+        // 構建Markdown內容
+        let markdownContent = '---\ntitle: "' + title + '"\n';
+        
+        // 新增可選欄位
+        if (metaTitle) {
+          markdownContent += 'meta_title: "' + metaTitle + '"\n';
+        } else {
+          markdownContent += 'meta_title: ""\n';
+        }
+        
+        if (description) {
+          markdownContent += 'description: "' + description + '"\n';
+        } else {
+          markdownContent += 'description: "meta description"\n';
+        }
+        
+        // 轉換日期格式為ISO格式
+        const isoDate = new Date(date).toISOString();
+        markdownContent += 'date: ' + isoDate + '\n';
+        
+        if (youtube) {
+          markdownContent += 'youtube: "' + youtube + '"\n';
+        }
+        
+        if (imagePath) {
+          markdownContent += 'image: "' + imagePath + '"\n';
+        }
+        
+        // 處理分類
+        markdownContent += 'categories: ["' + category + '"]\n';
+        
+        // 處理作者陣列
+        if (authors) {
+          const authorsArray = authors.split(',').map(function(auth) { return auth.trim(); });
+          markdownContent += 'authors: [' + authorsArray.map(function(auth) { return '"' + auth + '"'; }).join(', ') + ']\n';
+        } else {
+          markdownContent += 'authors: ["Admin"]\n';
+        }
+        
+        markdownContent += 'draft: ' + draft + '\n';
+        markdownContent += 'views: ' + views + '\n';
+        markdownContent += '---\n\n';
+        
+        // 先新增引用正文
+        if (quote) {
+          markdownContent += '> ' + quote + '\n\n';
+        }
+        
+        // 然後新增正文
+        markdownContent += content;
+        
+        // 透過API儲存文章
+        try {
+          const response = await fetch('/api/savePost', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, markdownContent })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            showAlert('posts-alert', '文章儲存成功！檔名：' + result.fileName, 'success');
+            
+            // 清空表單
+            const postTitleElement = document.getElementById('post-title') as HTMLInputElement;
+            const postMetaTitleElement = document.getElementById('post-meta-title') as HTMLInputElement;
+            const postDescriptionElement = document.getElementById('post-description') as HTMLInputElement;
+            const postYoutubeElement = document.getElementById('post-youtube') as HTMLInputElement;
+            const postImageElement = document.getElementById('post-image') as HTMLInputElement;
+            const postCategoriesElement = document.getElementById('post-categories') as HTMLInputElement;
+            const postAuthorsElement = document.getElementById('post-authors') as HTMLInputElement;
+            const postDraftElement = document.getElementById('post-draft') as HTMLInputElement;
+            const postViewsElement = document.getElementById('post-views') as HTMLInputElement;
+            const postContentElement = document.getElementById('post-content') as HTMLTextAreaElement;
+            const postQuoteElement = document.getElementById('post-quote') as HTMLInputElement;
+            const postDateElement = document.getElementById('post-date') as HTMLInputElement;
+            const postImageUrlElement = document.getElementById('post-image-url') as HTMLInputElement;
+            
+            if (postTitleElement) postTitleElement.value = '';
+            if (postMetaTitleElement) postMetaTitleElement.value = '';
+            if (postDescriptionElement) postDescriptionElement.value = '';
+            if (postYoutubeElement) postYoutubeElement.value = '';
+            if (postImageElement) postImageElement.value = '';
+            if (postImageUrlElement) postImageUrlElement.value = '';
+            if (postCategoriesElement) postCategoriesElement.value = '';
+            if (postAuthorsElement) postAuthorsElement.value = 'JiaWeiDao';
+            if (postDraftElement) postDraftElement.checked = false;
+            if (postViewsElement) postViewsElement.value = '0';
+            if (postContentElement) postContentElement.value = '';
+            if (postQuoteElement) postQuoteElement.value = '';
+            
+            // 重置日期為當前時間
+            const now = new Date();
+            const formattedDate = now.toISOString().slice(0, 16);
+            if (postDateElement) postDateElement.value = formattedDate;
+          } else {
+            showAlert('posts-alert', '文章儲存失敗: ' + result.error, 'error');
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+          showAlert('posts-alert', '文章儲存失敗: ' + errorMessage, 'error');
+        }
+      }
+      
+      // 儲存作者
+      window.saveAuthor = async function() {
+        // 確保所有元素都存在
+        const authorName = document.getElementById('author-name') as HTMLInputElement;
+        const authorBio = document.getElementById('author-bio') as HTMLInputElement;
+        
+        // 檢查所有必要元素是否存在
+        if (!authorName || !authorBio) {
+          showAlert('authors-alert', '表單元素載入失敗，請重新整理頁面重試', 'error');
+          return;
+        }
+        
+        // 獲取元素值
+        const name = authorName.value;
+        const bio = authorBio.value;
+        
+        if (!name) {
+          showAlert('authors-alert', '請輸入作者姓名', 'error');
+          return;
+        }
+        
+        // 構建Markdown內容
+        const markdownContent = '---\ntitle: "' + name + '"\n---\n\n' + bio;
+        
+        // 透過API儲存作者
+        try {
+          const response = await fetch('/api/saveAuthor', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, markdownContent })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            showAlert('authors-alert', '作者儲存成功！檔名：' + result.fileName, 'success');
+            
+            // 清空表單
+            const authorNameElement = document.getElementById('author-name') as HTMLInputElement;
+            const authorBioElement = document.getElementById('author-bio') as HTMLInputElement;
+            if (authorNameElement) authorNameElement.value = '';
+            if (authorBioElement) authorBioElement.value = '';
+          } else {
+            showAlert('authors-alert', '作者儲存失敗: ' + result.error, 'error');
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+          showAlert('authors-alert', '作者儲存失敗: ' + errorMessage, 'error');
+        }
+      }
+    </script>
+  </body>
+</html>

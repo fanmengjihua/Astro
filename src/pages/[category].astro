@@ -1,0 +1,47 @@
+---
+import Posts from "@/layouts/components/Posts.astro";
+import Base from "@/layouts/Base.astro";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { getTaxonomy, getTaxonomyWithOriginalSlug } from "@/lib/taxonomyParser.astro";
+import { sortByDate } from "@/lib/utils/sortFunctions";
+import taxonomyFilter from "@/lib/utils/taxonomyFilter";
+import categoryMapping from "@/config/categoryMapping.json";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const categories = await getTaxonomy("posts", "categories");
+
+  return categories.map((category) => {
+    return {
+      params: { category },
+    };
+  });
+}
+
+const { category } = Astro.params;
+
+const posts = await getSinglePage("posts");
+// 获取分类映射，将中文URL转换回原始英文slug用于过滤
+const categoryMappingReverse = Object.fromEntries(
+  Object.entries(categoryMapping).map(([key, value]) => [value, key])
+);
+// 获取原始英文slug
+const originalSlug = categoryMappingReverse[category as string] || category;
+
+const filterByCategory = taxonomyFilter(posts, "categories", originalSlug);
+const sortedPosts = sortByDate(filterByCategory);
+
+// 使用中文分类名称作为页面标题
+const title = category as string;
+---
+
+<Base title={title || "Category"}>
+  <div class="section">
+    <div class="container">
+      <p class="text-center text-2xl mb-4"></p>
+      <h1 class="h2 mb-16 text-center text-primary">{title}</h1>
+      <Posts posts={sortedPosts} fluid={false} />
+    </div>
+  </div>
+</Base>
