@@ -23,3 +23,9 @@ package-lock.json
 
 # ignore .astro directory
 .astro
+
+# Vercel deployment directory
+.vercel
+
+# Trae AI working directory
+.trae
