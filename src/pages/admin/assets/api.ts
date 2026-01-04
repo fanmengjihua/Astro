@@ -2,7 +2,7 @@
  * 后台统一 API 封装
  * Pages 只通过这里访问 Workers
  */
-const API = 'https://jiaweidao-workers.xxoo443.workers.dev/';
+const API = 'https://jiaweidao-workers.xxoo443.workers.dev';
 
 export const api = {
   getPosts(): Promise<any[]> {
