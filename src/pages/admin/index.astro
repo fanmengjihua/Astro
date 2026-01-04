@@ -19,12 +19,12 @@
 const API = 'https://jiaweidao-workers.xxoo443.workers.dev/';
 
 const api = {
-  getPosts(): Promise<any[]> {
+  getPosts() {
     return fetch(`${API}/posts`, {
       credentials: 'include'
     }).then(r => r.json());
   },
-  save(data: Record<string, any>): Promise<Response> {
+  save(data) {
     return fetch(`${API}/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,13 +32,13 @@ const api = {
       credentials: 'include'
     });
   },
-  publish(id: string | number): Promise<Response> {
+  publish(id) {
     return fetch(`${API}/publish/${id}`, {
       method: 'POST',
       credentials: 'include'
     });
   },
-  uploadImage(file: File): Promise<{ success: boolean; url?: string; error?: string }> {
+  uploadImage(file) {
     const formData = new FormData();
     formData.append('image', file);
     return fetch(`${API}/upload`, {
