@@ -257,19 +257,41 @@ save.onclick = async () => {
 };
 
 publish.onclick = async () => {
-  await api.save({
-    title: title.value,
-    meta_title: meta_title.value,
-    description: description.value,
-    youtube: youtube.value,
-    image: imageInput.value,
-    categories: parseArray(categories.value),
-    authors: parseArray(authors.value),
-    tags: parseArray(tags.value),
-    draft: draft.value === 'true',
-    content: content.value,
-    publish: true
-  });
-  alert('已发布');
+  try {
+    // 保存文章并获取publishId
+    const saveResponse = await api.save({
+      title: title.value,
+      meta_title: meta_title.value,
+      description: description.value,
+      youtube: youtube.value,
+      image: imageInput.value,
+      categories: parseArray(categories.value),
+      authors: parseArray(authors.value),
+      tags: parseArray(tags.value),
+      draft: draft.value === 'true',
+      content: content.value,
+      publish: true
+    });
+    
+    // 检查是否需要调用publish API
+    if (saveResponse.status === 200) {
+      const saveData = await saveResponse.json();
+      if (saveData && saveData.publishId) {
+        // 调用publish API完成发布
+        const publishResponse = await api.publish(saveData.publishId);
+        if (publishResponse.status === 200) {
+          alert('已发布');
+        } else {
+          alert('发布失败：' + publishResponse.statusText);
+        }
+      } else {
+        alert('已保存但发布失败');
+      }
+    } else {
+      alert('保存失败：' + saveResponse.statusText);
+    }
+  } catch (error) {
+    alert('发布失败：' + error.message);
+  }
 };
 </script>
