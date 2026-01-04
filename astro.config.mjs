@@ -15,8 +15,8 @@ export default defineConfig({
   base: config.site.base_path ? config.site.base_path : "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
   vite: { plugins: [tailwindcss()] },
-  output: "server",
-  adapter: cloudflare(),
+  output: "static",
+  adapter: cloudflare({ mode: "directory" }),
   integrations: [
     react(),
     sitemap(),
