@@ -7,11 +7,7 @@
  * - 受 Cloudflare Access 保护
  */
 
-// Cloudflare Access 验证
-const accessJwt = Astro.request.headers.get('Cf-Access-Jwt-Assertion');
-if (!accessJwt) {
-  return Astro.redirect('/login', 302);
-}
+
 ---
 
 <h1>文章管理</h1>
