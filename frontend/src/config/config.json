@@ -1,0 +1,39 @@
+{
+  "site": {
+    "title": "呷味道-JiaWeiDao",
+    "base_url": "https://bookworm-light-astro.vercel.app",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/images/jiaweidao.png",
+    "logo": "/images/logo.svg",
+    "logo_width": "500",
+    "logo_height": "85",
+    "logo_text": "呷味道-JiaWeiDao"
+  },
+
+  "settings": {
+    "pagination": 12
+  },
+
+  "metadata": {
+    "meta_author": "Themefisher",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "Bookworm Light Astro Blog Template"
+  },
+
+  "google_tag_manager": {
+    "enable": false,
+    "gtm_id": "GTM-XXXXXX"
+  },
+
+  "params": {
+    "contact_form_action": "#",
+    "copyright": "© 2026 呷味道-JiaWeiDao"
+  },
+
+  "contactinfo": {
+    "address": "355 S Grand Ave, Los Angeles, CA 90071",
+    "email": "sellingdreamccc@gmail.com",
+    "phone": "+800 567 1234"
+  }
+}

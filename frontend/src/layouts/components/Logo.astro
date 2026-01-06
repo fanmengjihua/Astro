@@ -1,0 +1,22 @@
+---
+import config from "@/config/config.json";
+const { src } = Astro.props;
+const {
+  logo,
+  logo_width,
+  logo_height,
+  title,
+} = config.site;
+---
+
+<a href="/" class="navbar-brand block hover-color">
+  <img
+    src={src ? src : logo}
+    alt={title}
+    style={{
+      height: logo_height.replace("px", "") + "px",
+      width: logo_width.replace("px", "") + "px",
+    }}
+    class="logo-svg"
+  />
+</a>

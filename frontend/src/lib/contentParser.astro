@@ -1,0 +1,63 @@
+---
+import { getAllPosts, getPostById, type Post } from "./apiService";
+
+export interface ApiPostEntry {
+  id: string;
+  data: {
+    title: string;
+    description?: string;
+    image?: string;
+    draft?: boolean;
+    content: string;
+    summary?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  slug: string;
+}
+
+export const getSinglePage = async (
+  collectionName: string
+): Promise<ApiPostEntry[]> => {
+  if (collectionName === "posts") {
+    const posts = await getAllPosts();
+    return posts.map(post => ({
+      id: post.id.toString(),
+      data: {
+        title: post.title,
+        description: post.summary,
+        image: post.avatar,
+        content: post.content,
+        summary: post.summary,
+        createdAt: new Date(post.createdAt),
+        updatedAt: new Date(post.updatedAt),
+        hashtags: post.hashtags,
+        categories: post.hashtags?.map(tag => tag.name) || []
+      },
+      slug: post.alias || post.id.toString()
+    }));
+  }
+  return [];
+};
+
+export const getPostBySlug = async (slug: string): Promise<ApiPostEntry | null> => {
+  const post = await getPostById(slug);
+  if (!post) return null;
+  
+  return {
+    id: post.id.toString(),
+    data: {
+      title: post.title,
+      description: post.summary,
+      image: post.avatar,
+      content: post.content,
+      summary: post.summary,
+      createdAt: new Date(post.createdAt),
+      updatedAt: new Date(post.updatedAt),
+      hashtags: post.hashtags,
+      categories: post.hashtags?.map(tag => tag.name) || []
+    },
+    slug: post.alias || post.id.toString()
+  };
+};
+---

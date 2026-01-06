@@ -1,0 +1,321 @@
+---
+---
+
+<h1>写文章</h1>
+<div class="admin-form">
+  <div class="form-group">
+    <label for="title">标题 *</label>
+    <input id="title" placeholder="文章标题" required />
+  </div>
+
+  <div class="form-group">
+    <label for="meta_title">Meta标题</label>
+    <input id="meta_title" placeholder="SEO标题" />
+  </div>
+
+  <div class="form-group">
+    <label for="description">描述</label>
+    <textarea id="description" placeholder="文章描述" rows="3"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="youtube">YouTube视频ID</label>
+    <input id="youtube" placeholder="YouTube视频ID" />
+  </div>
+
+  <div class="form-group">
+    <label for="image-upload">上传图片</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <input type="file" id="image-upload" accept="image/*" style="flex: 1;" />
+      <button type="button" id="upload-btn" style="padding: 10px; background-color: #0070f3; color: white; border: none; border-radius: 4px; cursor: pointer;">上传</button>
+    </div>
+    <div id="image-preview" style="margin-top: 10px; max-width: 300px; display: none;">
+      <img id="preview-img" src="" style="max-width: 100%; border-radius: 4px;" />
+    </div>
+    <input type="hidden" id="image" />
+    <small id="upload-status" style="display: block; margin-top: 5px; font-size: 12px; color: #666;"></small>
+  </div>
+
+  <div class="form-group">
+    <label for="categories">分类 (用逗号分隔)</label>
+    <input id="categories" placeholder="art, technology" />
+  </div>
+
+  <div class="form-group">
+    <label for="authors">作者 (用逗号分隔)</label>
+    <input id="authors" placeholder="JiaWeiDao" />
+  </div>
+
+  <div class="form-group">
+    <label for="tags">标签 (用逗号分隔)</label>
+    <input id="tags" placeholder="diy, toy" />
+  </div>
+
+  <div class="form-group">
+    <label for="draft">状态</label>
+    <select id="draft">
+      <option value="false">发布</option>
+      <option value="true">草稿</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="content">内容 *</label>
+    <textarea id="content" placeholder="Markdown内容" rows="15" required></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button id="save">保存</button>
+    <button id="publish">发布</button>
+  </div>
+</div>
+
+<style>
+.admin-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#save {
+  background-color: #eaeaea;
+  color: #333;
+}
+
+#save:hover {
+  background-color: #ddd;
+}
+
+#publish {
+  background-color: #0070f3;
+  color: white;
+}
+
+#publish:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+  .admin-form {
+    padding: 15px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  button {
+    width: 100%;
+  }
+}
+</style>
+
+<script type="module">
+// API configuration
+const API = 'https://jiaweidao-workers.xxoo443.workers.dev';
+
+const api = {
+  getPosts() {
+    return fetch(`${API}/posts`, {
+      credentials: 'include'
+    }).then(r => r.json());
+  },
+  save(data) {
+    return fetch(`${API}/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      credentials: 'include'
+    });
+  },
+  publish(id) {
+    return fetch(`${API}/publish/${id}`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+  },
+  uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    return fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    }).then(r => r.json());
+  }
+};
+
+// Helper function to parse comma-separated values
+const parseArray = (value) => {
+  return value ? value.split(',').map(item => item.trim()).filter(item => item) : [];
+};
+
+// Image upload functionality
+const imageUpload = document.getElementById('image-upload');
+const uploadBtn = document.getElementById('upload-btn');
+const imagePreview = document.getElementById('image-preview');
+const previewImg = document.getElementById('preview-img');
+const imageInput = document.getElementById('image');
+const uploadStatus = document.getElementById('upload-status');
+
+// Get form elements
+const title = document.getElementById('title');
+const meta_title = document.getElementById('meta_title');
+const description = document.getElementById('description');
+const youtube = document.getElementById('youtube');
+const categories = document.getElementById('categories');
+const authors = document.getElementById('authors');
+const tags = document.getElementById('tags');
+const draft = document.getElementById('draft');
+const content = document.getElementById('content');
+const save = document.getElementById('save');
+const publish = document.getElementById('publish');
+
+// Show image preview when file is selected
+imageUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      previewImg.src = event.target.result;
+      imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Upload image to R2
+uploadBtn.addEventListener('click', async () => {
+  const file = imageUpload.files[0];
+  if (!file) {
+    uploadStatus.textContent = '请先选择图片';
+    uploadStatus.style.color = 'red';
+    return;
+  }
+
+  uploadStatus.textContent = '上传中...';
+  uploadStatus.style.color = '#666';
+  
+  try {
+    const result = await api.uploadImage(file);
+    if (result.success) {
+      imageInput.value = result.url;
+      uploadStatus.textContent = '上传成功！';
+      uploadStatus.style.color = 'green';
+    } else {
+      uploadStatus.textContent = '上传失败: ' + result.error;
+      uploadStatus.style.color = 'red';
+    }
+  } catch (error) {
+    uploadStatus.textContent = '上传失败: ' + error.message;
+    uploadStatus.style.color = 'red';
+  }
+});
+
+save.onclick = async () => {
+  await api.save({
+    title: title.value,
+    meta_title: meta_title.value,
+    description: description.value,
+    youtube: youtube.value,
+    image: imageInput.value,
+    categories: parseArray(categories.value),
+    authors: parseArray(authors.value),
+    tags: parseArray(tags.value),
+    draft: draft.value === 'true',
+    content: content.value,
+    publish: false
+  });
+  alert('已保存');
+};
+
+publish.onclick = async () => {
+  try {
+    // 保存文章并获取publishId
+    const saveResponse = await api.save({
+      title: title.value,
+      meta_title: meta_title.value,
+      description: description.value,
+      youtube: youtube.value,
+      image: imageInput.value,
+      categories: parseArray(categories.value),
+      authors: parseArray(authors.value),
+      tags: parseArray(tags.value),
+      draft: draft.value === 'true',
+      content: content.value,
+      publish: true
+    });
+    
+    // 检查是否需要调用publish API
+    if (saveResponse.status === 200) {
+      const saveData = await saveResponse.json();
+      if (saveData && saveData.publishId) {
+        // 调用publish API完成发布
+        const publishResponse = await api.publish(saveData.publishId);
+        if (publishResponse.status === 200) {
+          alert('已发布');
+        } else {
+          alert('发布失败：' + publishResponse.statusText);
+        }
+      } else {
+        alert('已保存但发布失败');
+      }
+    } else {
+      alert('保存失败：' + saveResponse.statusText);
+    }
+  } catch (error) {
+    alert('发布失败：' + error.message);
+  }
+};
+</script>

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@plugin "../tailwind-plugin/tw-theme.mjs";
+@plugin "../tailwind-plugin/tw-bs-grid.mjs";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@import "./safe.css";
+@import "./utilities.css";
+
+@layer base {
+  @import "./base.css";
+}
+
+@layer components {
+  @import "./components.css";
+  @import "./navigation.css";
+  @import "./buttons.css";
+}
+@layer utilities {
+  .navbar-brand.hover-color {
+    color: #000000 !important;
+    transition: color 0.2s ease;
+  }
+
+  .navbar-brand.hover-color:hover {
+    color: #01ad9f !important;
+  }
+
+  .logo-svg {
+    fill: currentColor !important;
+  }
+  @layer utilities {
+  /* 默认颜色：黑色 */
+  .logo-svg {
+    filter: brightness(0) saturate(100%);
+    transition: filter 0.2s ease;
+  }
+
+  /* 悬停颜色：#01AD9F */
+  .navbar-brand.hover-color:hover .logo-svg {
+    filter: brightness(0) saturate(100%) invert(63%) sepia(63%) saturate(747%) hue-rotate(131deg) brightness(94%) contrast(101%);
+  }
+}
+}

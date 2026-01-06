@@ -1,0 +1,56 @@
+---
+import { type ApiPostEntry } from "@/lib/contentParser.astro";
+import dateFormat from "@/lib/utils/dateFormat";
+import { plainify } from "@/lib/utils/textConverter";
+import { BiCalendarEdit, BiCategoryAlt } from "react-icons/bi";
+
+type Props = {
+  post: ApiPostEntry;
+};
+
+const { post } = Astro.props;
+---
+
+<article class="single-blog">
+  {post.data.image && (
+    <div class="mb-10 rounded-lg overflow-hidden">
+      <img
+        src={post.data.image}
+        alt={post.data.title}
+        class="w-full h-auto"
+      />
+    </div>
+  )}
+  
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold mb-6">{post.data.title}</h1>
+    
+    <ul class="flex flex-wrap items-center text-text mb-8">
+      <li class="mr-5 flex items-center font-medium">
+        <BiCalendarEdit className="mr-1 h-5 w-5 text-gray-600" />
+        {dateFormat(post.data.createdAt)}
+      </li>
+      
+      <li class="mr-5 flex items-center">
+        <BiCategoryAlt className="mr-1 h-[18px] w-[18px] text-gray-600" />
+        <ul>
+          {post.data.categories?.map((category, i: number) => (
+            <li class="inline-block">
+              <a
+                href={`/${category.toLowerCase()}`}
+                class="mr-2 hover:text-primary font-medium"
+              >
+                {category}
+                {i !== (post.data.categories?.length || 0) - 1 && ","}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="prose prose-lg max-w-none">
+    <div set:html={post.data.content} />
+  </div>
+</article>
